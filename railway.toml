@@ -10,5 +10,6 @@ dockerfilePath = "Dockerfile"
 startCommand = "gateway run"
 restartPolicyType = "ALWAYS"
 requiredMountPath = "/opt/data"
+# Gateway + dashboard cold start can exceed 10m on first deploy; avoid false FAILED.
 healthcheckPath = "/"
-healthcheckTimeout = 600
+healthcheckTimeout = 1800
