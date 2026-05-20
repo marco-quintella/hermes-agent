@@ -7,10 +7,11 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "gateway run"
+# Railway requires the foreground process to listen on $PORT. Gateway runs in
+# background; dashboard binds $PORT in foreground (matches official templates).
+startCommand = "/bin/sh -c \"hermes gateway run & exec hermes dashboard --host 0.0.0.0 --port ${PORT:-9119} --no-open --insecure\""
 restartPolicyType = "ALWAYS"
 requiredMountPath = "/opt/data"
 
 [variables]
-HERMES_DASHBOARD = "1"
 HERMES_DASHBOARD_HOST = "0.0.0.0"
