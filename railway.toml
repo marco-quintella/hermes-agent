@@ -10,6 +10,7 @@ dockerfilePath = "Dockerfile"
 startCommand = "gateway run"
 restartPolicyType = "ON_FAILURE"
 requiredMountPath = "/opt/data"
+# No healthcheckPath — Railway default PORT probe; dashboard binds $PORT in foreground.
 
 [variables]
 HERMES_DASHBOARD = "1"

@@ -102,8 +102,10 @@ if [ ! -f "$HERMES_HOME/auth.json" ] && [ -n "$HERMES_AUTH_JSON_BOOTSTRAP" ]; th
     chmod 600 "$HERMES_HOME/auth.json"
 fi
 
-# Sync bundled skills (manifest-based so user edits are preserved)
-if [ -d "$INSTALL_DIR/skills" ]; then
+# Sync bundled skills (manifest-based so user edits are preserved).
+# On Railway, gateway startup already calls sync_skills — skip here so PORT
+# binds before the deploy health window expires.
+if [ -d "$INSTALL_DIR/skills" ] && [ -z "${RAILWAY_ENVIRONMENT:-}" ]; then
     python3 "$INSTALL_DIR/tools/skills_sync.py"
 fi
 
@@ -132,6 +134,14 @@ case "${HERMES_DASHBOARD:-}" in
         # published port), so opt in automatically.
         if [ "$dash_host" != "127.0.0.1" ] && [ "$dash_host" != "localhost" ]; then
             dash_args+=(--insecure)
+        fi
+        # Railway web services must have PID 1 listening on $PORT quickly.
+        # Foreground dashboard + background gateway (docker.md side-process inverted).
+        if [ -n "${PORT:-}" ] && [ -n "${RAILWAY_ENVIRONMENT:-}" ] \
+            && [ $# -ge 2 ] && [ "$1" = "gateway" ] && [ "$2" = "run" ]; then
+            echo "Railway: gateway (background), dashboard on ${dash_host}:${dash_port} (foreground)"
+            hermes gateway run &
+            exec hermes dashboard "${dash_args[@]}"
         fi
         echo "Starting hermes dashboard on ${dash_host}:${dash_port} (background)"
         # Prefix dashboard output so it's distinguishable from the main
