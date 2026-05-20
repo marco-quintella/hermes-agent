@@ -1,6 +1,9 @@
-# Railway config-as-code — aligned with lovexbytes/hermes-railway-template + docker.md.
-# Deploy: git push main → GitHub triggers build. No HTTP healthcheck (worker/web stable pattern).
-# Dashboard: HERMES_DASHBOARD=1 + PORT fallback in docker/entrypoint.sh.
+# Railway config-as-code — aligned with docker.md (dashboard) + lovexbytes (no HTTP healthcheck).
+# Deploy: git push main only.
+#
+# Port (must match in two places):
+#   1. PORT below → app listens on this (entrypoint: HERMES_DASHBOARD_PORT or PORT).
+#   2. Networking → your domain → Target port (edit icon) → same number (e.g. 9119).
 
 [build]
 builder = "DOCKERFILE"
@@ -13,5 +16,7 @@ requiredMountPath = "/opt/data"
 # No healthcheckPath — Railway default PORT probe; dashboard binds $PORT in foreground.
 
 [variables]
+# Explicit listen port; must match domain Target port in Railway UI.
+PORT = "9119"
 HERMES_DASHBOARD = "1"
 HERMES_DASHBOARD_HOST = "0.0.0.0"
