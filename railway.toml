@@ -1,4 +1,5 @@
 # Railway config-as-code for Hermes Agent (gateway + dashboard).
+# Deploy: push to main → GitHub triggers Railway build (Dockerfile + this file).
 # See: https://docs.railway.com/reference/config-as-code
 
 [build]
