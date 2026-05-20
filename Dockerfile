@@ -116,5 +116,6 @@ ENV HERMES_WEB_DIST=/opt/hermes/hermes_cli/web_dist
 ENV HERMES_HOME=/opt/data
 ENV PATH="/opt/data/.local/bin:${PATH}"
 RUN mkdir -p /opt/data
-VOLUME [ "/opt/data" ]
+# Persistent data: bind-mount at runtime (docker run -v ...:/opt/data).
+# Railway uses a native volume at /opt/data (see railway.toml requiredMountPath).
 ENTRYPOINT [ "/usr/bin/tini", "-g", "--", "/opt/hermes/docker/entrypoint.sh" ]
