@@ -10,3 +10,7 @@ dockerfilePath = "Dockerfile"
 startCommand = "gateway run"
 restartPolicyType = "ALWAYS"
 requiredMountPath = "/opt/data"
+
+[variables]
+HERMES_DASHBOARD = "1"
+HERMES_DASHBOARD_HOST = "0.0.0.0"

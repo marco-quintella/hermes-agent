@@ -123,7 +123,8 @@ fi
 case "${HERMES_DASHBOARD:-}" in
     1|true|TRUE|True|yes|YES|Yes)
         dash_host="${HERMES_DASHBOARD_HOST:-0.0.0.0}"
-        dash_port="${HERMES_DASHBOARD_PORT:-9119}"
+        # Railway injects PORT for public HTTP; fall back when HERMES_DASHBOARD_PORT is unset.
+        dash_port="${HERMES_DASHBOARD_PORT:-${PORT:-9119}}"
         dash_args=(--host "$dash_host" --port "$dash_port" --no-open)
         # Binding to anything other than localhost requires --insecure — the
         # dashboard refuses otherwise because it exposes API keys.  Inside a
