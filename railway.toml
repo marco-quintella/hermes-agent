@@ -10,7 +10,6 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "gateway run"
 restartPolicyType = "ON_FAILURE"
 requiredMountPath = "/opt/data"
 # No healthcheckPath — Railway default PORT probe; dashboard binds $PORT in foreground.
