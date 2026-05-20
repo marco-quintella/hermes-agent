@@ -107,6 +107,25 @@ if [ -d "$INSTALL_DIR/skills" ]; then
     python3 "$INSTALL_DIR/tools/skills_sync.py"
 fi
 
+# Railway web service: the foreground process must bind Railway's $PORT.
+# Gateway runs in the background; dashboard is PID 1 (HERMES_RAILWAY_WEB=1).
+case "${HERMES_RAILWAY_WEB:-}" in
+    1|true|TRUE|True|yes|YES|Yes)
+        if [ $# -ge 2 ] && [ "$1" = "gateway" ] && [ "$2" = "run" ]; then
+            dash_host="${HERMES_DASHBOARD_HOST:-0.0.0.0}"
+            dash_port="${HERMES_DASHBOARD_PORT:-${PORT:-9119}}"
+            dash_args=(--host "$dash_host" --port "$dash_port" --no-open)
+            if [ "$dash_host" != "127.0.0.1" ] && [ "$dash_host" != "localhost" ]; then
+                dash_args+=(--insecure)
+            fi
+            echo "Starting hermes gateway (background, Railway web mode)"
+            hermes gateway run &
+            echo "Starting hermes dashboard on ${dash_host}:${dash_port} (foreground)"
+            exec hermes dashboard "${dash_args[@]}"
+        fi
+        ;;
+esac
+
 # Optionally start `hermes dashboard` as a side-process.
 #
 # Toggled by HERMES_DASHBOARD=1 (also accepts "true"/"yes", case-insensitive).
