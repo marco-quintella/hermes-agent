@@ -107,25 +107,6 @@ if [ -d "$INSTALL_DIR/skills" ]; then
     python3 "$INSTALL_DIR/tools/skills_sync.py"
 fi
 
-# Railway web service: the foreground process must bind Railway's $PORT.
-# Gateway runs in the background; dashboard is PID 1 (HERMES_RAILWAY_WEB=1).
-case "${HERMES_RAILWAY_WEB:-}" in
-    1|true|TRUE|True|yes|YES|Yes)
-        if [ $# -ge 2 ] && [ "$1" = "gateway" ] && [ "$2" = "run" ]; then
-            dash_host="${HERMES_DASHBOARD_HOST:-0.0.0.0}"
-            dash_port="${HERMES_DASHBOARD_PORT:-${PORT:-9119}}"
-            dash_args=(--host "$dash_host" --port "$dash_port" --no-open)
-            if [ "$dash_host" != "127.0.0.1" ] && [ "$dash_host" != "localhost" ]; then
-                dash_args+=(--insecure)
-            fi
-            echo "Starting hermes gateway (background, Railway web mode)"
-            hermes gateway run &
-            echo "Starting hermes dashboard on ${dash_host}:${dash_port} (foreground)"
-            exec hermes dashboard "${dash_args[@]}"
-        fi
-        ;;
-esac
-
 # Optionally start `hermes dashboard` as a side-process.
 #
 # Toggled by HERMES_DASHBOARD=1 (also accepts "true"/"yes", case-insensitive).
@@ -169,12 +150,14 @@ esac
 #   docker run <image> sleep infinity  -> exec `sleep infinity` directly
 #   docker run <image> bash            -> exec `bash` directly
 #
-# If the first positional arg resolves to an executable on PATH, we assume the
-# caller wants to run it directly (needed by the launcher which runs long-lived
-# `sleep infinity` sandbox containers — see tools/environments/docker.py).
-# Otherwise we treat the args as a hermes subcommand and wrap with `hermes`,
-# preserving the documented `docker run <image> <subcommand>` behavior.
+# If the first positional arg is a host utility (sleep/bash/sh), run it directly
+# (sandbox launcher). Do NOT treat /bin/sh or hermes subcommands as direct exec —
+# Railway startCommand must go through `hermes` so the venv stays on PATH.
 if [ $# -gt 0 ] && command -v "$1" >/dev/null 2>&1; then
-    exec "$@"
+    case "$(basename "$1")" in
+        sleep|bash|sh|dash)
+            exec "$@"
+            ;;
+    esac
 fi
 exec hermes "$@"

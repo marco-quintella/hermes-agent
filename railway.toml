@@ -1,6 +1,6 @@
-# Railway config-as-code for Hermes Agent (gateway + dashboard).
-# Deploy: push to main → GitHub triggers Railway build (Dockerfile + this file).
-# See: https://docs.railway.com/reference/config-as-code
+# Railway config-as-code — aligned with lovexbytes/hermes-railway-template + docker.md.
+# Deploy: git push main → GitHub triggers build. No HTTP healthcheck (worker/web stable pattern).
+# Dashboard: HERMES_DASHBOARD=1 + PORT fallback in docker/entrypoint.sh.
 
 [build]
 builder = "DOCKERFILE"
@@ -8,9 +8,9 @@ dockerfilePath = "Dockerfile"
 
 [deploy]
 startCommand = "gateway run"
-restartPolicyType = "ALWAYS"
+restartPolicyType = "ON_FAILURE"
 requiredMountPath = "/opt/data"
 
 [variables]
-HERMES_RAILWAY_WEB = "1"
+HERMES_DASHBOARD = "1"
 HERMES_DASHBOARD_HOST = "0.0.0.0"

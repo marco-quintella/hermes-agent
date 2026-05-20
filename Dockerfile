@@ -119,3 +119,4 @@ RUN mkdir -p /opt/data
 # Persistent data: bind-mount at runtime (docker run -v ...:/opt/data).
 # Railway uses a native volume at /opt/data (see railway.toml requiredMountPath).
 ENTRYPOINT [ "/usr/bin/tini", "-g", "--", "/opt/hermes/docker/entrypoint.sh" ]
+CMD [ "gateway", "run" ]
