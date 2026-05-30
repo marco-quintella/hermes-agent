@@ -1306,6 +1306,11 @@ def _apply_env_overrides(config: GatewayConfig) -> None:
 
     # Slack
     slack_token = os.getenv("SLACK_BOT_TOKEN")
+    if not slack_token:
+        # Fallback: use token from platforms.slack config (config.yaml)
+        slack_plat = config.platforms.get(Platform.SLACK)
+        if slack_plat and slack_plat.token:
+            slack_token = slack_plat.token
     if slack_token:
         if Platform.SLACK not in config.platforms:
             # No yaml config for Slack — env-only setup, enable it
